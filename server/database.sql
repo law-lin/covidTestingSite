@@ -4,7 +4,13 @@ CREATE TABLE employee(
   employee_id VARCHAR(20) PRIMARY KEY,
   email VARCHAR(50),
   first_name VARCHAR(50),
-  last_name VARCHAR(50)
+  last_name VARCHAR(50),
+  password VARCHAR(50)
+);
+
+CREATE TABLE lab_employee(
+  lab_id VARCHAR(20) PRIMARY KEY,
+  password VARCHAR(50)
 );
 
 CREATE TABLE employee_test(
@@ -13,7 +19,9 @@ CREATE TABLE employee_test(
   collection_time TIMESTAMP,
   collected_by VARCHAR(20),
   CONSTRAINT fk_employee_test_employee
-    FOREIGN KEY (employee_id) REFERENCES employee(employee_id)
+    FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
+  CONSTRAINT fk_employee_test_employee
+    FOREIGN KEY (collected_by) REFERENCES lab_employee(lab_id)
 );
 
 CREATE TABLE pool(

@@ -1,0 +1,19 @@
+{
+  "name": "covidtestingsite",
+  "version": "1.0.0",
+  "description": "Made by Lawrence Lin and Leo Pan",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently -kill-others \"cd client/ && npm start\" \"(cd server/ && npm run dev)\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/law-lin/covidTestingSite.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/law-lin/covidTestingSite/issues"
+  },
+  "homepage": "https://github.com/law-lin/covidTestingSite#readme"
+}
