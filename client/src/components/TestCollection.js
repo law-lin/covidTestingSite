@@ -14,33 +14,22 @@ const columns = [
   },
 ];
 
-const rowSelection = {
-  onChange: (selectedRowKeys, selectedRows) => {
-    console.log(
-      `selectedRowKeys: ${selectedRowKeys}`,
-      'selectedRows: ',
-      selectedRows
-    );
-  },
-  getCheckboxProps: (record) => ({
-    disabled: record.name === 'Disabled User',
-    // Column configuration not to be checked
-    name: record.name,
-  }),
-};
-
 function TestCollection() {
   const employee_id = useFormInput('');
   const test_barcode = useFormInput('');
   const [data, setData] = useState([]);
-
+  const [selectedTests, setSelectedTests] = useState([]);
   useEffect(() => {
+    updateTable();
+  }, []);
+
+  const updateTable = () => {
     employeeService
       .getEmployeeTests()
       .then((res) => {
         let data = res.data.map((test) => {
           let o = Object.assign({}, test);
-          o.key = test.employee_id;
+          o.key = test.test_barcode;
           return o;
         });
         setData(data);
@@ -48,13 +37,28 @@ function TestCollection() {
       .catch((err) => {
         console.log(err.message);
       });
-  }, []);
+  };
+
+  const rowSelection = {
+    onChange: (selectedRowKeys, selectedRows) => {
+      setSelectedTests(selectedRowKeys);
+      console.log(
+        `selectedRowKeys: ${selectedRowKeys}`,
+        'selectedRows: ',
+        selectedRows
+      );
+    },
+    getCheckboxProps: (record) => ({
+      disabled: record.name === 'Disabled User',
+      // Column configuration not to be checked
+      name: record.name,
+    }),
+  };
 
   const handleAdd = () => {
     employeeService
       .getLabEmployee(localStorage.getItem('token'))
       .then((res) => {
-        let name = `${res.data.first_name} ${res.data.last_name}`;
         let test = {
           test_barcode: test_barcode.value,
           employee_id: employee_id.value,
@@ -64,7 +68,7 @@ function TestCollection() {
         employeeService
           .addTest(test)
           .then((res) => {
-            console.log(res.data);
+            updateTable();
           })
           .catch((err) => {
             console.log(err.message);
@@ -73,6 +77,19 @@ function TestCollection() {
       .catch((err) => {
         console.log(err.message);
       });
+  };
+
+  const handleDelete = () => {
+    selectedTests.forEach((test) => {
+      employeeService
+        .deleteTest(test)
+        .then((res) => {
+          updateTable();
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+    });
   };
 
   return (
@@ -95,6 +112,9 @@ function TestCollection() {
           dataSource={data}
           pagination={false}
         />
+        <Button type='danger' onClick={handleDelete}>
+          Delete Selected Rows
+        </Button>
       </Space>
     </div>
   );

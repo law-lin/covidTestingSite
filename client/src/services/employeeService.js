@@ -23,6 +23,9 @@ const addTest = (test) => {
   return axios.post(`${baseUrl}/test-collection`, test);
 };
 
+const deleteTest = (test_barcode) => {
+  return axios.delete(`${baseUrl}/test-collection/${test_barcode}`);
+};
 const getEmployeeTests = () => {
   return axios.get(`${baseUrl}/test-collection`);
 };
@@ -33,5 +36,6 @@ export default {
   logIn,
   getLabEmployee,
   addTest,
+  deleteTest,
   getEmployeeTests,
 };

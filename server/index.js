@@ -152,13 +152,14 @@ app.post('/test-collection', async (req, res) => {
     console.log(err.message);
   }
 });
+
 // Deletes an employee test from the test collection
-app.delete('/test-collection/:id', async (req, res) => {
+app.delete('/test-collection/:test_barcode', async (req, res) => {
   try {
-    const { id } = req.body;
+    const { test_barcode } = req.params;
     const deleteEmployee = await pool.query(
-      'DELETE FROM employee_test WHERE employee_id = $1',
-      [id]
+      'DELETE FROM employee_test WHERE test_barcode = $1',
+      [test_barcode]
     );
     res.json(deleteEmployee.rows[0]);
   } catch (err) {
