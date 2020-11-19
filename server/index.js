@@ -1,4 +1,5 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const app = express();
 const cors = require('cors');
 const pool = require('./db');
@@ -12,36 +13,6 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-
-// Register employee
-app.post('/register', async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-  } catch (err) {}
-});
-
-// Get all employees
-app.get('/employees', async (req, res) => {
-  try {
-    const allEmployees = await pool.query('SELECT * FROM employee');
-    res.json(allEmployees.rows);
-  } catch (err) {
-    console.log(err.message);
-  }
-});
-// Get an employee
-app.get('/employees/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const employee = await pool.query(
-      'SELECT * FROM employee WHERE employee_id = $1',
-      [id]
-    );
-    res.json(employee.rows[0]);
-  } catch (err) {
-    console.log(err.message);
-  }
-});
 
 // Create (register) new employee
 app.post('/signup', validation, async (req, res) => {
@@ -91,14 +62,19 @@ app.post('/login', validation, async (req, res) => {
       return res.status(401).json('Password or email is incorrect');
     }
     // give user the jwt token
-    const token = jwtGenerator(employee.rows[0].employee_id);
+    let token = null;
+    if (role === 'employee') {
+      token = jwtGenerator(employee.rows[0].employee_id);
+    } else {
+      token = jwtGenerator(employee.rows[0].lab_id);
+    }
     res.json({ token, role });
   } catch (err) {
     console.log(err.message);
   }
 });
 
-// Verification route for authroization
+// Verification route for authorization
 app.post('/verify', authorization, (req, res) => {
   try {
     res.json(true);
@@ -107,7 +83,57 @@ app.post('/verify', authorization, (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
+// Get current lab employee
+app.get('/lab-employees/:token', async (req, res) => {
+  try {
+    const jwtToken = req.params.token;
+    if (!jwtToken) {
+      return res.status(403).json('Not authorized');
+    }
+    const payload = jwt.verify(jwtToken, process.env.jwtSecret);
+    const labEmployee = await pool.query(
+      'SELECT * FROM lab_employee WHERE lab_id=$1',
+      [payload.user]
+    );
+    res.json(labEmployee.rows[0]);
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+
+// Get all employees
+app.get('/employees', async (req, res) => {
+  try {
+    const allEmployees = await pool.query('SELECT * FROM employee');
+    res.json(allEmployees.rows);
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+// Get an employee
+app.get('/employees/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const employee = await pool.query(
+      'SELECT * FROM employee WHERE employee_id = $1',
+      [id]
+    );
+    res.json(employee.rows[0]);
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+
 /////////// Test Collection Page Routes ///////////
+app.get('/test-collection', async (req, res) => {
+  try {
+    const employeeTests = await pool.query('SELECT * FROM employee_test');
+    res.json(employeeTests.rows);
+  } catch (err) {
+    console.log(err.message);
+  }
+});
 // Adds a new employee test to the test collection
 app.post('/test-collection', async (req, res) => {
   try {

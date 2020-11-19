@@ -15,6 +15,9 @@ function LabHome() {
         <Button type='link' href='/well-testing'>
           Well Testing
         </Button>
+        <Button type='link' href='/test-collection'>
+          Test Collection
+        </Button>
       </Space>
     </div>
   );

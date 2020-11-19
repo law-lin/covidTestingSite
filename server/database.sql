@@ -22,10 +22,10 @@ CREATE TABLE employee_test(
   test_barcode VARCHAR(255) PRIMARY KEY,
   employee_id uuid NOT NULL,
   collection_time TIMESTAMP,
-  collected_by VARCHAR(20),
+  collected_by uuid NOT NULL,
   CONSTRAINT fk_employee_test_employee
     FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
-  CONSTRAINT fk_employee_test_employee
+  CONSTRAINT fk_employee_test_lab_employee
     FOREIGN KEY (collected_by) REFERENCES lab_employee(lab_id)
 );
 
