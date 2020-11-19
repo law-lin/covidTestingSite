@@ -22,14 +22,31 @@ function App() {
           <PrivateRoute
             exact
             path='/test-collection'
+            roles={['lab_employee']}
             component={TestCollection}
           />
-          <PrivateRoute exact path='/pool-mapping' component={PoolMapping} />
-          <PrivateRoute exact path='/well-testing' component={WellTesting} />
-          <Route exact path='/employee' component={EmployeeLogin} />
+          <PrivateRoute
+            exact
+            path='/pool-mapping'
+            roles={['lab_employee']}
+            component={PoolMapping}
+          />
+          <PrivateRoute
+            exact
+            path='/well-testing'
+            roles={['lab_employee']}
+            component={WellTesting}
+          />
+          <Route
+            exact
+            path='/employee'
+            roles={['employee']}
+            component={EmployeeLogin}
+          />
           <PrivateRoute
             exact
             path='/employee-results'
+            roles={['employee']}
             component={EmployeeResults}
           />
         </Switch>

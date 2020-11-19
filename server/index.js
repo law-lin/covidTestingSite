@@ -71,7 +71,32 @@ app.post('/employee-signup', validation, async (req, res) => {
     console.log(err.message);
   }
 });
-// Login route
+// Login route for lab employees
+app.post('/lab-employee-login', validation, async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    // check if employee already exists
+    const employee = await pool.query(
+      'SELECT * FROM lab_employee WHERE email = $1',
+      [email]
+    );
+    if (employee.rows.length === 0) {
+      return res.status(401).json('Password or email is incorrect');
+    }
+    // check if passwords match
+    const validPassword = bcrypt.compare(password, employee.rows[0].password);
+
+    if (!validPassword) {
+      return res.status(401).json('Password or email is incorrect');
+    }
+    // give user the jwt token
+    const token = jwtGenerator(employee.rows[0].employee_id);
+    res.json({ token, role: 'lab_employee' });
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+// Login route for employees
 app.post('/employee-login', validation, async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -91,7 +116,7 @@ app.post('/employee-login', validation, async (req, res) => {
     }
     // give user the jwt token
     const token = jwtGenerator(employee.rows[0].employee_id);
-    res.json({ token });
+    res.json({ token, role: 'employee' });
   } catch (err) {
     console.log(err.message);
   }

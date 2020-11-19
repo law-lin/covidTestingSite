@@ -2,7 +2,6 @@ import axios from 'axios';
 const baseUrl = 'http://localhost:3001';
 
 const authorize = () => {
-  console.log(localStorage.token);
   return axios.post(`${baseUrl}/verify`, null, {
     headers: { jwt_token: localStorage.token },
   });

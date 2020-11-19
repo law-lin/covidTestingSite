@@ -2,13 +2,22 @@ import React, { useEffect, useState } from 'react';
 import { Route, Redirect } from 'react-router-dom';
 import employeeService from '../services/employeeService';
 
-const PrivateRoute = ({ component: Component, ...rest }) => {
+const PrivateRoute = ({ component: Component, roles, ...rest }) => {
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     employeeService.authorize().then((res) => {
-      res.data ? setAuthenticated(true) : setAuthenticated(false);
+      // check if user is logged in
+      if (res.data) {
+        setAuthenticated(true);
+        // check if route is restricted by a particular role
+        if (roles && roles.indexOf(localStorage.getItem('role')) === -1) {
+          setAuthenticated(false);
+        }
+      } else {
+        setAuthenticated(false);
+      }
       setLoading(false);
     });
   }, []);

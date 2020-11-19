@@ -15,10 +15,10 @@ function EmployeeLogin() {
     employeeService
       .employeeLogIn(employee)
       .then((res) => {
-        const token = res.data;
-        console.log(token);
-        if (token.token) {
-          localStorage.setItem('token', token.token);
+        const data = res.data;
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('role', data.role);
           window.location.href = '/employee-results';
         }
       })
