@@ -3,22 +3,23 @@ import 'antd/dist/antd.css';
 import { Space, Input, Button, Table, Typography } from 'antd';
 import employeeService from '../services/employeeService';
 
-const columns = [
-  {
-    title: 'Employee ID',
-    dataIndex: 'employee_id',
-  },
-  {
-    title: 'Test Barcode',
-    dataIndex: 'test_barcode',
-  },
-];
-
 function TestCollection() {
   const employee_id = useFormInput('');
   const test_barcode = useFormInput('');
   const [data, setData] = useState([]);
   const [selectedTests, setSelectedTests] = useState([]);
+
+  const columns = [
+    {
+      title: 'Employee ID',
+      dataIndex: 'employee_id',
+    },
+    {
+      title: 'Test Barcode',
+      dataIndex: 'test_barcode',
+    },
+  ];
+
   useEffect(() => {
     updateTable();
   }, []);
@@ -42,11 +43,6 @@ function TestCollection() {
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
       setSelectedTests(selectedRowKeys);
-      console.log(
-        `selectedRowKeys: ${selectedRowKeys}`,
-        'selectedRows: ',
-        selectedRows
-      );
     },
     getCheckboxProps: (record) => ({
       disabled: record.name === 'Disabled User',
