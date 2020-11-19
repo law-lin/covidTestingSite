@@ -7,14 +7,8 @@ function EmployeeResults() {
     <div>
       <Space direction='vertical'>
         <Typography>
-          <Typography.Title>COVID-19 Testing Site</Typography.Title>
+          <Typography.Title>Employee Results</Typography.Title>
         </Typography>
-        <Input placeholder='Email' />
-        <Input.Password placeholder='Password' />
-        <Space>
-          <Button type='primary'>Login Collector</Button>
-          <Button type='primary'>Lab Login</Button>
-        </Space>
       </Space>
     </div>
   );

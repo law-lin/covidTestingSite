@@ -2,12 +2,23 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const pool = require('./db');
+const bcrypt = require('bcrypt');
+const jwtGenerator = require('./utils/jwtGenerator');
+const validation = require('./middleware/validation');
+const authorization = require('./middleware/authorization');
 
 // Use middleware
 app.use(cors());
 app.use(express.json());
 
 // Routes
+
+// Register employee
+app.post('/register', async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+  } catch (err) {}
+});
 
 // Get all employees
 app.get('/employees', async (req, res) => {
@@ -31,20 +42,70 @@ app.get('/employees/:id', async (req, res) => {
     console.log(err.message);
   }
 });
-// Create new employee
-app.post('/employees', async (req, res) => {
+
+// Create (register) new employee
+app.post('/employee-signup', validation, async (req, res) => {
   try {
-    const { employee_id, email, first_name, last_name } = req.body;
-    const newEmployee = await pool.query(
-      'INSERT INTO employee (employee_id, email, first_name, last_name) VALUES ($1, $2, $3, $4) RETURNING *',
-      [employee_id, email, first_name, last_name]
+    const { email, first_name, last_name, password } = req.body;
+    // check if employee already exists
+    const employee = await pool.query(
+      'SELECT * FROM employee WHERE email = $1',
+      [email]
     );
-    res.json(newEmployee.rows[0]);
+    if (employee.rows.length !== 0) {
+      return res.status(401).send('Employee already exists');
+    }
+    // encrpyt password
+    const saltRound = 10;
+    const salt = await bcrypt.genSalt(saltRound);
+    const bcryptPassword = await bcrypt.hash(password, salt);
+    // insert new employee
+    const newEmployee = await pool.query(
+      'INSERT INTO employee (email, first_name, last_name, password) VALUES ($1, $2, $3, $4) RETURNING *',
+      [email, first_name, last_name, bcryptPassword]
+    );
+    // generate jwt token
+    const token = jwtGenerator(newEmployee.rows[0].employee_id);
+    res.json({ token });
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+// Login route
+app.post('/employee-login', validation, async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    // check if employee already exists
+    const employee = await pool.query(
+      'SELECT * FROM employee WHERE email = $1',
+      [email]
+    );
+    if (employee.rows.length === 0) {
+      return res.status(401).json('Password or email is incorrect');
+    }
+    // check if passwords match
+    const validPassword = bcrypt.compare(password, employee.rows[0].password);
+
+    if (!validPassword) {
+      return res.status(401).json('Password or email is incorrect');
+    }
+    // give user the jwt token
+    const token = jwtGenerator(employee.rows[0].employee_id);
+    res.json({ token });
   } catch (err) {
     console.log(err.message);
   }
 });
 
+// Verification route for authroization
+app.post('/verify', authorization, (req, res) => {
+  try {
+    res.json(true);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
 /////////// Test Collection Page Routes ///////////
 // Adds a new employee test to the test collection
 app.post('/test-collection', async (req, res) => {
