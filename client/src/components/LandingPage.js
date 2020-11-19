@@ -15,6 +15,9 @@ function LandingPage() {
         <Button type='link' href='/employee'>
           Are you an employee looking for results? Click here!
         </Button>
+        <Button type='link' href='/signup'>
+          Register a new employee here!
+        </Button>
       </Space>
     </div>
   );
