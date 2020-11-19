@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import PrivateRoute from './components/PrivateRoute';
 
 import LandingPage from './components/LandingPage';
+import SignUp from './components/SignUp';
 import LabLogin from './components/LabLogin';
 import LabHome from './components/LabHome';
 import TestCollection from './components/TestCollection';
@@ -17,6 +18,7 @@ function App() {
       <Router>
         <Switch>
           <Route exact path='/' component={LandingPage} />
+          <Route exact path='/signup' component={SignUp} />
           <Route exact path='/labtech' component={LabLogin} />
           <Route exact path='/home' component={LabHome} />
           <PrivateRoute

@@ -44,12 +44,12 @@ app.get('/employees/:id', async (req, res) => {
 });
 
 // Create (register) new employee
-app.post('/employee-signup', validation, async (req, res) => {
+app.post('/signup', validation, async (req, res) => {
   try {
-    const { email, first_name, last_name, password } = req.body;
+    const { email, first_name, last_name, password, role } = req.body;
     // check if employee already exists
     const employee = await pool.query(
-      'SELECT * FROM employee WHERE email = $1',
+      `SELECT * FROM ${role} WHERE email = $1`,
       [email]
     );
     if (employee.rows.length !== 0) {
@@ -61,7 +61,7 @@ app.post('/employee-signup', validation, async (req, res) => {
     const bcryptPassword = await bcrypt.hash(password, salt);
     // insert new employee
     const newEmployee = await pool.query(
-      'INSERT INTO employee (email, first_name, last_name, password) VALUES ($1, $2, $3, $4) RETURNING *',
+      `INSERT INTO ${role} (email, first_name, last_name, password) VALUES ($1, $2, $3, $4) RETURNING *`,
       [email, first_name, last_name, bcryptPassword]
     );
     // generate jwt token
@@ -71,38 +71,14 @@ app.post('/employee-signup', validation, async (req, res) => {
     console.log(err.message);
   }
 });
-// Login route for lab employees
-app.post('/lab-employee-login', validation, async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    // check if employee already exists
-    const employee = await pool.query(
-      'SELECT * FROM lab_employee WHERE email = $1',
-      [email]
-    );
-    if (employee.rows.length === 0) {
-      return res.status(401).json('Password or email is incorrect');
-    }
-    // check if passwords match
-    const validPassword = bcrypt.compare(password, employee.rows[0].password);
 
-    if (!validPassword) {
-      return res.status(401).json('Password or email is incorrect');
-    }
-    // give user the jwt token
-    const token = jwtGenerator(employee.rows[0].employee_id);
-    res.json({ token, role: 'lab_employee' });
-  } catch (err) {
-    console.log(err.message);
-  }
-});
 // Login route for employees
-app.post('/employee-login', validation, async (req, res) => {
+app.post('/login', validation, async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
     // check if employee already exists
     const employee = await pool.query(
-      'SELECT * FROM employee WHERE email = $1',
+      `SELECT * FROM ${role} WHERE email = $1`,
       [email]
     );
     if (employee.rows.length === 0) {
@@ -116,7 +92,7 @@ app.post('/employee-login', validation, async (req, res) => {
     }
     // give user the jwt token
     const token = jwtGenerator(employee.rows[0].employee_id);
-    res.json({ token, role: 'employee' });
+    res.json({ token, role });
   } catch (err) {
     console.log(err.message);
   }

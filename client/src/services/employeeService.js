@@ -6,24 +6,17 @@ const authorize = () => {
     headers: { jwt_token: localStorage.token },
   });
 };
-const labEmployeeSignUp = (employee) => {
-  return axios.post(`${baseUrl}/lab-employee-signup`, employee);
-};
-const labEmployeeLogIn = () => {
-  return axios.post(`${baseUrl}/lab-employee-login`);
+
+const signUp = (employee) => {
+  return axios.post(`${baseUrl}/signup`, employee);
 };
 
-const employeeSignUp = (employee) => {
-  return axios.post(`${baseUrl}/employee-signup`, employee);
-};
-const employeeLogIn = (employee) => {
-  return axios.post(`${baseUrl}/employee-login`, employee);
+const logIn = (employee) => {
+  return axios.post(`${baseUrl}/login`, employee);
 };
 
 export default {
   authorize,
-  labEmployeeSignUp,
-  labEmployeeLogIn,
-  employeeSignUp,
-  employeeLogIn,
+  signUp,
+  logIn,
 };

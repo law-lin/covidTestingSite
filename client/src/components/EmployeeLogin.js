@@ -11,9 +11,10 @@ function EmployeeLogin() {
     let employee = {
       email: email.value,
       password: password.value,
+      role: 'employee',
     };
     employeeService
-      .employeeLogIn(employee)
+      .logIn(employee)
       .then((res) => {
         const data = res.data;
         if (data.token) {
