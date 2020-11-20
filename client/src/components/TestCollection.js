@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import 'antd/dist/antd.css';
 import { Space, Input, Button, Table, Typography } from 'antd';
 import employeeService from '../services/employeeService';
 

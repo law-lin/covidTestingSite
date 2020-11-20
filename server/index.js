@@ -171,18 +171,36 @@ app.delete('/test-collection/:test_barcode', async (req, res) => {
 // Create a new pool
 app.post('/pool-mapping', async (req, res) => {
   try {
-    const { test_barcode, pool_barcode } = req.body;
-    const poolMap = await pool.query(
-      'INSERT INTO pool_map (test_barcode, pool_barcode) VALUES ($1, $2)',
-      [test_barcode, pool_barcode]
-    );
+    const { tests, pool_barcode } = req.body;
 
-    const newPool = await pool.query(
-      'INSERT INTO pool (pool_barcode) VALUES ($1)',
-      [pool_barcode]
+    let checkPool = await pool.query('SELECT FROM pool WHERE pool_barcode=$1', [
+      pool_barcode,
+    ]);
+    if (!checkPool.rows[0]) {
+      // create pool if pool doesn't exist
+      checkPool = await pool.query(
+        'INSERT INTO pool (pool_barcode) VALUES ($1)',
+        [pool_barcode]
+      );
+    }
+    await tests.forEach((test) => {
+      pool.query(
+        'INSERT INTO pool_map (test_barcode, pool_barcode) VALUES ($1, $2)',
+        [test.test_barcode, pool_barcode]
+      );
+    });
+    res.json(checkPool.rows[0]);
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+// Get all pools
+app.get('/pool-mapping', async (req, res) => {
+  try {
+    const pools = await pool.query(
+      `SELECT pool_barcode, string_agg(test_barcode, ', ') FROM pool_map GROUP BY pool_barcode;`
     );
-
-    res.json(poolMap.rows[0]);
+    res.json(pools.rows);
   } catch (err) {
     console.log(err.message);
   }

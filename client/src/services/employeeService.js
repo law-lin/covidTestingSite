@@ -30,6 +30,13 @@ const getEmployeeTests = () => {
   return axios.get(`${baseUrl}/test-collection`);
 };
 
+const getPools = () => {
+  return axios.get(`${baseUrl}/pool-mapping`);
+};
+const addPool = (pool) => {
+  return axios.post(`${baseUrl}/pool-mapping`, pool);
+};
+
 export default {
   authorize,
   signUp,
@@ -38,4 +45,6 @@ export default {
   addTest,
   deleteTest,
   getEmployeeTests,
+  getPools,
+  addPool,
 };

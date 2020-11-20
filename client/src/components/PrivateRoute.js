@@ -7,19 +7,25 @@ const PrivateRoute = ({ component: Component, roles, ...rest }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    employeeService.authorize().then((res) => {
-      // check if user is logged in
-      if (res.data) {
-        setAuthenticated(true);
-        // check if route is restricted by a particular role
-        if (roles && roles.indexOf(localStorage.getItem('role')) === -1) {
+    employeeService
+      .authorize()
+      .then((res) => {
+        // check if user is logged in
+        if (res.data) {
+          setAuthenticated(true);
+          // check if route is restricted by a particular role
+          if (roles && roles.indexOf(localStorage.getItem('role')) === -1) {
+            setAuthenticated(false);
+          }
+        } else {
           setAuthenticated(false);
         }
-      } else {
-        setAuthenticated(false);
-      }
-      setLoading(false);
-    });
+        setLoading(false);
+      })
+      .catch((err) => {
+        setLoading(false);
+        console.log(err.message);
+      });
   }, []);
 
   if (loading) {

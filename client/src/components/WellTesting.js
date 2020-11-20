@@ -1,5 +1,4 @@
 import React from 'react';
-import 'antd/dist/antd.css';
 import { Space, Input, Button, Typography, Select } from 'antd';
 
 const { Option } = Select;
