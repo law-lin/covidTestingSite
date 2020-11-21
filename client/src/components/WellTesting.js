@@ -10,8 +10,8 @@ function WellTesting() {
         <Typography>
           <Typography.Title>Well Testing</Typography.Title>
         </Typography>
-        <Input addonBefore='Well barcode:' placeholder='Ex: 444' />
-        <Input addonBefore='Pool barcode:' placeholder='Ex: 098' />
+        <Input addonBefore='Well barcode:' />
+        <Input addonBefore='Pool barcode:' />
         <Select defaultValue='in progress' style={{ width: 120 }}>
           <Option value='in progress'>In Progress</Option>
           <Option value='negative'>Negative</Option>

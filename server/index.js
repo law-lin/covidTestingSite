@@ -206,6 +206,24 @@ app.get('/pool-mapping', async (req, res) => {
   }
 });
 
+// Deletes an employee test from the test collection
+app.delete('/pool-mapping/:pool_barcode', async (req, res) => {
+  try {
+    const { pool_barcode } = req.params;
+    const deletePoolMap = await pool.query(
+      'DELETE FROM pool_map WHERE pool_barcode = $1',
+      [pool_barcode]
+    );
+    const deletePool = await pool.query(
+      'DELETE FROM pool WHERE pool_barcode = $1',
+      [pool_barcode]
+    );
+    res.json(deletePool.rows[0]);
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+
 app.listen(3001, () => {
   console.log(`Server running on port 3001`);
 });

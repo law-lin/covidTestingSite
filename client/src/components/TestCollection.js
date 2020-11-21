@@ -2,6 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { Space, Input, Button, Table, Typography } from 'antd';
 import employeeService from '../services/employeeService';
 
+const useFormInput = (initVal) => {
+  const [value, setValue] = useState(initVal);
+  const handleChange = (e) => setValue(e.target.value);
+  return {
+    value,
+    setValue,
+    onChange: handleChange,
+  };
+};
+
 function TestCollection() {
   const employee_id = useFormInput('');
   const test_barcode = useFormInput('');
@@ -64,6 +74,8 @@ function TestCollection() {
           .addTest(test)
           .then((res) => {
             updateTable();
+            employee_id.setValue('');
+            test_barcode.setValue('');
           })
           .catch((err) => {
             console.log(err.message);
@@ -114,14 +126,5 @@ function TestCollection() {
     </div>
   );
 }
-
-const useFormInput = (initVal) => {
-  const [value, setValue] = useState(initVal);
-  const handleChange = (e) => setValue(e.target.value);
-  return {
-    value,
-    onChange: handleChange,
-  };
-};
 
 export default TestCollection;

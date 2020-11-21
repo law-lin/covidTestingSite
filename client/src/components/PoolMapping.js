@@ -8,6 +8,7 @@ const useFormInput = (initVal) => {
   const handleChange = (e) => setValue(e.target.value);
   return {
     value,
+    setValue,
     onChange: handleChange,
   };
 };
@@ -70,6 +71,8 @@ function PoolMapping() {
       .addPool(pool)
       .then((res) => {
         updateTable();
+        pool_barcode.setValue('');
+        setTests([{ test_barcode: '' }]);
       })
       .catch((err) => {
         console.log(err.message);
@@ -77,7 +80,18 @@ function PoolMapping() {
   };
   const handleEdit = () => {};
 
-  const handleDelete = () => {};
+  const handleDelete = () => {
+    selectedPools.forEach((pool) => {
+      employeeService
+        .deletePool(pool)
+        .then((res) => {
+          updateTable();
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+    });
+  };
 
   const updateTable = () => {
     employeeService.getPools().then((res) => {
@@ -96,6 +110,7 @@ function PoolMapping() {
         <Typography>
           <Typography.Title>Pool Mapping</Typography.Title>
         </Typography>
+
         <Input addonBefore='Pool barcode:' {...pool_barcode} />
         <Space direction='vertical' style={{ border: '1px solid #d9d9d9' }}>
           <Typography
@@ -145,7 +160,9 @@ function PoolMapping() {
           dataSource={data}
           pagination={false}
         />
-        <Button onClick={handleEdit}>Edit Selected Pool</Button>
+        <Button onClick={handleEdit} disabled={selectedPools.length !== 1}>
+          Edit Selected Pool
+        </Button>
         <Button type='danger' onClick={handleDelete}>
           Delete Selected Pools
         </Button>

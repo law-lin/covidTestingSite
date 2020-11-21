@@ -26,6 +26,7 @@ const addTest = (test) => {
 const deleteTest = (test_barcode) => {
   return axios.delete(`${baseUrl}/test-collection/${test_barcode}`);
 };
+
 const getEmployeeTests = () => {
   return axios.get(`${baseUrl}/test-collection`);
 };
@@ -35,6 +36,9 @@ const getPools = () => {
 };
 const addPool = (pool) => {
   return axios.post(`${baseUrl}/pool-mapping`, pool);
+};
+const deletePool = (pool_barcode) => {
+  return axios.delete(`${baseUrl}/pool-mapping/${pool_barcode}`);
 };
 
 export default {
@@ -47,4 +51,5 @@ export default {
   getEmployeeTests,
   getPools,
   addPool,
+  deletePool,
 };
