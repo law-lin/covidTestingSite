@@ -34,18 +34,31 @@ const getEmployeeTests = () => {
 const getPools = () => {
   return axios.get(`${baseUrl}/pool-mapping`);
 };
+
 const addPool = (pool) => {
   return axios.post(`${baseUrl}/pool-mapping`, pool);
 };
+
+const editPool = (pool) => {
+  return axios.put(`${baseUrl}/pool-mapping/`, pool);
+};
+
 const deletePool = (pool_barcode) => {
   return axios.delete(`${baseUrl}/pool-mapping/${pool_barcode}`);
 };
+
 const addWell = (well) => {
   return axios.post(`${baseUrl}/well-testing`, well);
 };
+
 const getWells = () => {
   return axios.get(`${baseUrl}/well-testing`);
-}
+};
+
+const editWell = (well) => {
+  return axios.put(`${baseUrl}/well-testing/`, well);
+};
+
 const deleteWell = (well_barcode) => {
   return axios.delete(`${baseUrl}/well-testing/${well_barcode}`);
 };
@@ -60,8 +73,10 @@ export default {
   getEmployeeTests,
   getPools,
   addPool,
+  editPool,
   deletePool,
   addWell,
   getWells,
-  deleteWell
+  deleteWell,
+  editWell,
 };

@@ -72,7 +72,7 @@ function TestCollection() {
         };
         employeeService
           .addTest(test)
-          .then((res) => {
+          .then(() => {
             updateTable();
             employee_id.setValue('');
             test_barcode.setValue('');

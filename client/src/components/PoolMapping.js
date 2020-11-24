@@ -69,7 +69,7 @@ function PoolMapping() {
     };
     employeeService
       .addPool(pool)
-      .then((res) => {
+      .then(() => {
         updateTable();
         pool_barcode.setValue('');
         setTests([{ test_barcode: '' }]);
@@ -78,7 +78,18 @@ function PoolMapping() {
         console.log(err.message);
       });
   };
-  const handleEdit = () => {};
+
+  const handleEdit = () => {
+    if (selectedPools.length !== 1) {
+      const pool = {
+        tests,
+        pool_barcode: selectedPools[0],
+      };
+      employeeService.editPool(pool).then(() => {
+        updateTable();
+      });
+    }
+  };
 
   const handleDelete = () => {
     selectedPools.forEach((pool) => {

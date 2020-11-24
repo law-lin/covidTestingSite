@@ -205,6 +205,21 @@ app.get('/pool-mapping', async (req, res) => {
     console.log(err.message);
   }
 });
+// Updates a pool
+app.put('/pool-mapping', async (req, res) => {
+  try {
+    const { tests, pool_barcode } = req.params;
+
+    await tests.forEach((test) => {
+      pool.query('UPDATE pool_map SET test_barcode=$1 WHERE pool_barcode=$2', [
+        test.test_barcode,
+        pool_barcode,
+      ]);
+    });
+  } catch (err) {
+    console.log(err.message);
+  }
+});
 
 // Deletes an employee test from the test collection
 app.delete('/pool-mapping/:pool_barcode', async (req, res) => {
@@ -224,34 +239,56 @@ app.delete('/pool-mapping/:pool_barcode', async (req, res) => {
   }
 });
 
+/////////// Well Testing Page Routes ///////////
+// Create a new well
 app.post('/well-testing', async (req, res) => {
   try {
-    const { well_barcode, pool_barcode, result, testing_start_time, testing_end_time } = req.body;
+    const {
+      well_barcode,
+      pool_barcode,
+      result,
+      testing_start_time,
+      testing_end_time,
+    } = req.body;
 
-    await pool.query('INSERT INTO well(well_barcode) VALUES ($1)',
-      [well_barcode]
-      );
-    const newWell = await pool.query('INSERT INTO well_testing(pool_barcode, well_barcode, testing_start_time, testing_end_time, result) VALUES ($1, $2, $3, $4, $5)', 
-    [pool_barcode, well_barcode, testing_start_time, testing_end_time, result]
-      );
+    await pool.query('INSERT INTO well (well_barcode) VALUES ($1)', [
+      well_barcode,
+    ]);
+    const newWell = await pool.query(
+      'INSERT INTO well_testing (pool_barcode, well_barcode, testing_start_time, testing_end_time, result) VALUES ($1, $2, $3, $4, $5)',
+      [pool_barcode, well_barcode, testing_start_time, testing_end_time, result]
+    );
 
     res.json(newWell.rows[0]);
   } catch (err) {
     console.log(err.message);
   }
 });
-
+// Get all wells
 app.get('/well-testing', async (req, res) => {
   try {
-    const wells = await pool.query(
-      `SELECT * FROM well_testing`
-    );
+    const wells = await pool.query(`SELECT * FROM well_testing`);
     res.json(wells.rows);
   } catch (err) {
     console.log(err.message);
   }
 });
+// Updates a well
+app.put('/well-testing', async (req, res) => {
+  try {
+    const { well_barcode, result } = req.params;
 
+    const updatedWell = await pool.query(
+      'UPDATE well_testing SET result=$2 WHERE well_barcode=$1',
+      [well_barcode, result]
+    );
+
+    res.json(updatedWell.rows[0]);
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+// Deletes a well
 app.delete('/well-testing/:well_barcode', async (req, res) => {
   try {
     const { well_barcode } = req.params;
