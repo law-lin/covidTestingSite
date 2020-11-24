@@ -4,6 +4,7 @@ import employeeService from '../services/employeeService';
 
 function EmployeeResults() {
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const columns = [
     {
       title: 'Collection Date',
@@ -30,23 +31,29 @@ function EmployeeResults() {
             return o;
           });
           setData(data);
+          setLoading(false);
         });
       })
       .catch((err) => {
         console.log(err.message);
+        setLoading(false);
       });
   };
 
   console.log(data);
   return (
-    <div>
-      <Space direction='vertical'>
-        <Typography>
-          <Typography.Title>Employee Results</Typography.Title>
-        </Typography>
-        <Table columns={columns} dataSource={data} pagination={false} />
-      </Space>
-    </div>
+    <>
+      {!loading ? (
+        <div>
+          <Space direction='vertical'>
+            <Typography>
+              <Typography.Title>Employee Results</Typography.Title>
+            </Typography>
+            <Table columns={columns} dataSource={data} pagination={false} />
+          </Space>
+        </div>
+      ) : null}
+    </>
   );
 }
 

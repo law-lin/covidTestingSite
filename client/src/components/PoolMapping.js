@@ -18,6 +18,7 @@ function PoolMapping() {
   const [tests, setTests] = useState([{ test_barcode: '' }]);
   const [data, setData] = useState([]);
   const [selectedPools, setSelectedPools] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const columns = [
     {
@@ -33,6 +34,23 @@ function PoolMapping() {
   useEffect(() => {
     updateTable();
   }, []);
+
+  const updateTable = () => {
+    employeeService
+      .getPools()
+      .then((res) => {
+        let data = res.data.map((pool) => {
+          let o = Object.assign({}, pool);
+          o.key = pool.pool_barcode;
+          return o;
+        });
+        setData(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+  };
 
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
@@ -104,81 +122,78 @@ function PoolMapping() {
     });
   };
 
-  const updateTable = () => {
-    employeeService.getPools().then((res) => {
-      let data = res.data.map((pool) => {
-        let o = Object.assign({}, pool);
-        o.key = pool.pool_barcode;
-        return o;
-      });
-      setData(data);
-    });
-  };
-
   return (
-    <div>
-      <Space direction='vertical'>
-        <Typography>
-          <Typography.Title>Pool Mapping</Typography.Title>
-        </Typography>
+    <>
+      {!loading ? (
+        <div>
+          <Space direction='vertical'>
+            <Typography>
+              <Typography.Title>Pool Mapping</Typography.Title>
+            </Typography>
 
-        <Input addonBefore='Pool barcode:' {...pool_barcode} />
-        <Space direction='vertical' style={{ border: '1px solid #d9d9d9' }}>
-          <Typography
-            style={{
-              padding: '0 11px',
-              backgroundColor: '#fafafa',
-              borderBottom: '1px solid #d9d9d9',
-            }}
-          >
-            Test barcodes:
-          </Typography>
-          {tests.map((test, i) => {
-            return (
-              <Space key={i} direction='horizontal' style={{ padding: '10px' }}>
-                <Input
-                  name='test_barcode'
-                  value={test.test_barcode}
-                  onChange={(e) => handleInputChange(e, i)}
-                />
-                {tests.length !== 1 && (
-                  <Button
-                    type='text'
-                    danger
-                    onClick={() => handleRemoveTest(i)}
+            <Input addonBefore='Pool barcode:' {...pool_barcode} />
+            <Space direction='vertical' style={{ border: '1px solid #d9d9d9' }}>
+              <Typography
+                style={{
+                  padding: '0 11px',
+                  backgroundColor: '#fafafa',
+                  borderBottom: '1px solid #d9d9d9',
+                }}
+              >
+                Test barcodes:
+              </Typography>
+              {tests.map((test, i) => {
+                return (
+                  <Space
+                    key={i}
+                    direction='horizontal'
+                    style={{ padding: '10px' }}
                   >
-                    Delete
-                  </Button>
-                )}
-              </Space>
-            );
-          })}
-          <Button style={{ margin: '10px' }} onClick={handleAddTest}>
-            Add Test Barcode
-          </Button>
-        </Space>
+                    <Input
+                      name='test_barcode'
+                      value={test.test_barcode}
+                      onChange={(e) => handleInputChange(e, i)}
+                    />
+                    {tests.length !== 1 && (
+                      <Button
+                        type='text'
+                        danger
+                        onClick={() => handleRemoveTest(i)}
+                      >
+                        Delete
+                      </Button>
+                    )}
+                  </Space>
+                );
+              })}
+              <Button style={{ margin: '10px' }} onClick={handleAddTest}>
+                Add Test Barcode
+              </Button>
+            </Space>
 
-        <Button type='primary' onClick={handleSubmit}>
-          Submit Pool
-        </Button>
+            <Button type='primary' onClick={handleSubmit}>
+              Submit Pool
+            </Button>
 
-        <Table
-          rowSelection={{
-            type: 'checkbox',
-            ...rowSelection,
-          }}
-          columns={columns}
-          dataSource={data}
-          pagination={false}
-        />
-        <Button onClick={handleEdit} disabled={selectedPools.length !== 1}>
-          Edit Selected Pool
-        </Button>
-        <Button type='danger' onClick={handleDelete}>
-          Delete Selected Pools
-        </Button>
-      </Space>
-    </div>
+            <Table
+              rowSelection={{
+                type: 'checkbox',
+                ...rowSelection,
+              }}
+              columns={columns}
+              dataSource={data}
+              pagination={false}
+            />
+            <Button onClick={handleEdit} disabled={selectedPools.length !== 1}>
+              Edit Selected Pool
+            </Button>
+            <Button type='danger' onClick={handleDelete}>
+              Delete Selected Pools
+            </Button>
+          </Space>
+        </div>
+      ) : null}
+    </>
   );
 }
 

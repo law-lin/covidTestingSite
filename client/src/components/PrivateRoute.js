@@ -14,6 +14,8 @@ const PrivateRoute = ({ component: Component, roles, ...rest }) => {
         if (res.data) {
           setAuthenticated(true);
           // check if route is restricted by a particular role
+          console.log(roles);
+          console.log(localStorage.getItem('role'));
           if (roles && roles.indexOf(localStorage.getItem('role')) === -1) {
             setAuthenticated(false);
           }

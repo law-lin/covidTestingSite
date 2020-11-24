@@ -17,6 +17,7 @@ function TestCollection() {
   const test_barcode = useFormInput('');
   const [data, setData] = useState([]);
   const [selectedTests, setSelectedTests] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const columns = [
     {
@@ -43,9 +44,11 @@ function TestCollection() {
           return o;
         });
         setData(data);
+        setLoading(false);
       })
       .catch((err) => {
         console.log(err.message);
+        setLoading(false);
       });
   };
 
@@ -100,30 +103,38 @@ function TestCollection() {
   };
 
   return (
-    <div>
-      <Space direction='vertical'>
-        <Typography>
-          <Typography.Title>Test Collection</Typography.Title>
-        </Typography>
-        <Input addonBefore='Employee ID:' placeholder='' {...employee_id} />
-        <Input addonBefore='Test barcode:' placeholder='' {...test_barcode} />
-        <Button type='primary' onClick={handleAdd}>
-          Add
-        </Button>
-        <Table
-          rowSelection={{
-            type: 'checkbox',
-            ...rowSelection,
-          }}
-          columns={columns}
-          dataSource={data}
-          pagination={false}
-        />
-        <Button type='danger' onClick={handleDelete}>
-          Delete Selected Rows
-        </Button>
-      </Space>
-    </div>
+    <>
+      {!loading ? (
+        <div>
+          <Space direction='vertical'>
+            <Typography>
+              <Typography.Title>Test Collection</Typography.Title>
+            </Typography>
+            <Input addonBefore='Employee ID:' placeholder='' {...employee_id} />
+            <Input
+              addonBefore='Test barcode:'
+              placeholder=''
+              {...test_barcode}
+            />
+            <Button type='primary' onClick={handleAdd}>
+              Add
+            </Button>
+            <Table
+              rowSelection={{
+                type: 'checkbox',
+                ...rowSelection,
+              }}
+              columns={columns}
+              dataSource={data}
+              pagination={false}
+            />
+            <Button type='danger' onClick={handleDelete}>
+              Delete Selected Rows
+            </Button>
+          </Space>
+        </div>
+      ) : null}
+    </>
   );
 }
 

@@ -21,7 +21,12 @@ function App() {
           <Route exact path='/' component={LandingPage} />
           <Route exact path='/signup' component={SignUp} />
           <Route exact path='/labtech' component={LabLogin} />
-          <Route exact path='/home' component={LabHome} />
+          <PrivateRoute
+            exact
+            path='/home'
+            roles={['lab_employee']}
+            component={LabHome}
+          />
           <PrivateRoute
             exact
             path='/test-collection'

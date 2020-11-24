@@ -20,6 +20,7 @@ function WellTesting() {
   const [result, setResult] = useState('in progress');
   const [data, setData] = useState([]);
   const [selectedWells, setSelectedWells] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const columns = [
     {
@@ -61,10 +62,11 @@ function WellTesting() {
           return o;
         });
         setData(data);
-        console.log(res.data);
+        setLoading(false);
       })
       .catch((err) => {
         console.log(err.message);
+        setLoading(false);
       });
   };
 
@@ -115,45 +117,49 @@ function WellTesting() {
   };
 
   return (
-    <div>
-      <Space direction='vertical'>
-        <Typography>
-          <Typography.Title>Well Testing</Typography.Title>
-        </Typography>
-        <Input addonBefore='Well barcode:' {...well_barcode} />
-        <Input addonBefore='Pool barcode:' {...pool_barcode} />
-        <Select
-          defaultValue='in progress'
-          value={result}
-          onChange={(value) => {
-            setResult(value);
-          }}
-          style={{ width: 120 }}
-        >
-          <Option value='in progress'>In Progress</Option>
-          <Option value='negative'>Negative</Option>
-          <Option value='positive'>Positive</Option>
-        </Select>
-        <Button type='primary' onClick={handleAdd}>
-          Add
-        </Button>
-        <Table
-          rowSelection={{
-            type: 'checkbox',
-            ...rowSelection,
-          }}
-          columns={columns}
-          dataSource={data}
-          pagination={false}
-        />
-        <Button onClick={handleEdit} disabled={selectedWells.length !== 1}>
-          Edit Selected Well
-        </Button>
-        <Button type='danger' onClick={handleDelete}>
-          Delete Selected Wells
-        </Button>
-      </Space>
-    </div>
+    <>
+      {!loading ? (
+        <div>
+          <Space direction='vertical'>
+            <Typography>
+              <Typography.Title>Well Testing</Typography.Title>
+            </Typography>
+            <Input addonBefore='Well barcode:' {...well_barcode} />
+            <Input addonBefore='Pool barcode:' {...pool_barcode} />
+            <Select
+              defaultValue='in progress'
+              value={result}
+              onChange={(value) => {
+                setResult(value);
+              }}
+              style={{ width: 120 }}
+            >
+              <Option value='in progress'>In Progress</Option>
+              <Option value='negative'>Negative</Option>
+              <Option value='positive'>Positive</Option>
+            </Select>
+            <Button type='primary' onClick={handleAdd}>
+              Add
+            </Button>
+            <Table
+              rowSelection={{
+                type: 'checkbox',
+                ...rowSelection,
+              }}
+              columns={columns}
+              dataSource={data}
+              pagination={false}
+            />
+            <Button onClick={handleEdit} disabled={selectedWells.length !== 1}>
+              Edit Selected Well
+            </Button>
+            <Button type='danger' onClick={handleDelete}>
+              Delete Selected Wells
+            </Button>
+          </Space>
+        </div>
+      ) : null}
+    </>
   );
 }
 
