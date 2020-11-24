@@ -63,6 +63,14 @@ const deleteWell = (well_barcode) => {
   return axios.delete(`${baseUrl}/well-testing/${well_barcode}`);
 };
 
+const getEmployee = (token) => {
+  return axios.get(`${baseUrl}/employees/${token}`);
+};
+
+const getEmployeeResults = (employee_id) => {
+  return axios.get(`${baseUrl}/employee-results/${employee_id}`);
+};
+
 export default {
   authorize,
   signUp,
@@ -79,4 +87,6 @@ export default {
   getWells,
   deleteWell,
   editWell,
+  getEmployee,
+  getEmployeeResults,
 };

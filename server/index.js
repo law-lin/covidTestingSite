@@ -112,12 +112,16 @@ app.get('/employees', async (req, res) => {
   }
 });
 // Get an employee
-app.get('/employees/:id', async (req, res) => {
+app.get('/employees/:token', async (req, res) => {
   try {
-    const { id } = req.params;
+    const jwtToken = req.params.token;
+    if (!jwtToken) {
+      return res.status(403).json('Not authorized');
+    }
+    const payload = jwt.verify(jwtToken, process.env.jwtSecret);
     const employee = await pool.query(
       'SELECT * FROM employee WHERE employee_id = $1',
-      [id]
+      [payload.user]
     );
     res.json(employee.rows[0]);
   } catch (err) {
@@ -301,6 +305,24 @@ app.delete('/well-testing/:well_barcode', async (req, res) => {
       [well_barcode]
     );
     res.json(deleteWell.rows[0]);
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+
+/////////// Employee Results Route ///////////
+app.get('/employee-results/:employee_id', async (req, res) => {
+  try {
+    const { employee_id } = req.params;
+    const wells = await pool.query(
+      `SELECT e.collection_time, w.result 
+      FROM employee_test e 
+      INNER JOIN pool_map p ON e.test_barcode=p.test_barcode
+      INNER JOIN well_testing w ON w.pool_barcode=p.pool_barcode
+      WHERE e.employee_id=$1;`,
+      [employee_id]
+    );
+    res.json(wells.rows);
   } catch (err) {
     console.log(err.message);
   }
