@@ -40,6 +40,15 @@ const addPool = (pool) => {
 const deletePool = (pool_barcode) => {
   return axios.delete(`${baseUrl}/pool-mapping/${pool_barcode}`);
 };
+const addWell = (well) => {
+  return axios.post(`${baseUrl}/well-testing`, well);
+};
+const getWells = () => {
+  return axios.get(`${baseUrl}/well-testing`);
+}
+const deleteWell = (well_barcode) => {
+  return axios.delete(`${baseUrl}/well-testing/${well_barcode}`);
+};
 
 export default {
   authorize,
@@ -52,4 +61,7 @@ export default {
   getPools,
   addPool,
   deletePool,
+  addWell,
+  getWells,
+  deleteWell
 };

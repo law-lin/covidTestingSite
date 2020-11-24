@@ -224,6 +224,51 @@ app.delete('/pool-mapping/:pool_barcode', async (req, res) => {
   }
 });
 
+app.post('/well-testing', async (req, res) => {
+  try {
+    const { well_barcode, pool_barcode, result, testing_start_time, testing_end_time } = req.body;
+
+    await pool.query('INSERT INTO well(well_barcode) VALUES ($1)',
+      [well_barcode]
+      );
+    const newWell = await pool.query('INSERT INTO well_testing(pool_barcode, well_barcode, testing_start_time, testing_end_time, result) VALUES ($1, $2, $3, $4, $5)', 
+    [pool_barcode, well_barcode, testing_start_time, testing_end_time, result]
+      );
+
+    res.json(newWell.rows[0]);
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+
+app.get('/well-testing', async (req, res) => {
+  try {
+    const wells = await pool.query(
+      `SELECT * FROM well_testing`
+    );
+    res.json(wells.rows);
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+
+app.delete('/well-testing/:well_barcode', async (req, res) => {
+  try {
+    const { well_barcode } = req.params;
+    const deleteWellTest = await pool.query(
+      'DELETE FROM well_testing WHERE well_barcode = $1',
+      [well_barcode]
+    );
+    const deleteWell = await pool.query(
+      'DELETE FROM well WHERE well_barcode = $1',
+      [well_barcode]
+    );
+    res.json(deleteWell.rows[0]);
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+
 app.listen(3001, () => {
   console.log(`Server running on port 3001`);
 });
