@@ -281,24 +281,20 @@ app.delete('/pool-mapping/:pool_barcode', async (req, res) => {
 // Create a new well
 app.post('/well-testing', async (req, res) => {
   try {
-    const {
-      well_barcode,
-      pool_barcode,
-      result,
-      testing_start_time,
-      testing_end_time,
-    } = req.body;
+    const { well_barcode, pool_barcode, result, testing_start_time } = req.body;
 
+    await pool.query('BEGIN');
     await pool.query('INSERT INTO well (well_barcode) VALUES ($1)', [
       well_barcode,
     ]);
     const newWell = await pool.query(
-      'INSERT INTO well_testing (pool_barcode, well_barcode, testing_start_time, testing_end_time, result) VALUES ($1, $2, $3, $4, $5)',
-      [pool_barcode, well_barcode, testing_start_time, testing_end_time, result]
+      'INSERT INTO well_testing (pool_barcode, well_barcode, testing_start_time, result) VALUES ($1, $2, $3, $4)',
+      [pool_barcode, well_barcode, testing_start_time, result]
     );
-
+    await pool.query('COMMIT');
     res.json(newWell.rows[0]);
   } catch (err) {
+    await pool.query('ROLLBACK');
     console.log(err.message);
   }
 });
@@ -312,17 +308,55 @@ app.get('/well-testing', async (req, res) => {
   }
 });
 // Updates a well
-app.put('/well-testing', async (req, res) => {
+app.put('/well-testing/:original_well_barcode', async (req, res) => {
   try {
-    const { well_barcode, result } = req.params;
-    await pool.query('BEGIN');
-    const updatedWell = await pool.query(
-      'UPDATE well_testing SET result=$2 WHERE well_barcode=$1',
-      [well_barcode, result]
-    );
+    const { original_well_barcode } = req.params;
+    const {
+      well_barcode,
+      pool_barcode,
+      result,
+      testing_start_time,
+      testing_end_time,
+    } = req.body;
 
+    await pool.query('BEGIN');
+    // Edit well_barcode if original doesn't match updated
+    if (original_well_barcode !== well_barcode) {
+      // Delete original tests associated with original_well_barcode
+      await pool.query('DELETE FROM well_testing WHERE well_barcode=$1', [
+        original_well_barcode,
+      ]);
+
+      // Delete original well
+      await pool.query('DELETE FROM well WHERE well_barcode=$1', [
+        original_well_barcode,
+      ]);
+      // Add new pool
+      await pool.query('INSERT INTO well (well_barcode) VALUES ($1)', [
+        well_barcode,
+      ]);
+      // Add new well test
+      await pool.query(
+        'INSERT INTO well_testing (pool_barcode, well_barcode, testing_start_time, testing_end_time, result) VALUES ($1, $2, $3, $4, $5)',
+        [
+          pool_barcode,
+          well_barcode,
+          testing_start_time,
+          testing_end_time,
+          result,
+        ]
+      );
+      await pool.query('COMMIT');
+      res.status(200).end();
+    }
+    // well_barcode is the same, so update other fields
+    // Update pool_barcode
+    await pool.query(
+      'UPDATE well_testing SET pool_barcode=$2, result=$3, testing_end_time=$4 WHERE well_barcode=$1',
+      [well_barcode, pool_barcode, result, testing_end_time]
+    );
     await pool.query('COMMIT');
-    res.json(updatedWell.rows[0]);
+    res.status(200).end();
   } catch (err) {
     await pool.query('ROLLBACK');
     console.log(err.message);

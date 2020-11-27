@@ -30,6 +30,7 @@ function EmployeeResults() {
             o.key = i;
             return o;
           });
+          console.log(data);
           setData(data);
           setLoading(false);
         });
