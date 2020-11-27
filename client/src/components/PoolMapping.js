@@ -18,6 +18,9 @@ function PoolMapping() {
   const [tests, setTests] = useState([{ test_barcode: '' }]);
   const [data, setData] = useState([]);
   const [selectedPools, setSelectedPools] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [edit, setEdit] = useState(false);
+  const [editedPool, setEditedPool] = useState({});
   const [loading, setLoading] = useState(true);
 
   const columns = [
@@ -55,6 +58,7 @@ function PoolMapping() {
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
       setSelectedPools(selectedRowKeys);
+      setSelectedRows(selectedRows);
     },
     getCheckboxProps: (record) => ({
       disabled: record.name === 'Disabled User',
@@ -98,22 +102,46 @@ function PoolMapping() {
   };
 
   const handleEdit = () => {
-    if (selectedPools.length !== 1) {
-      const pool = {
-        tests,
-        pool_barcode: selectedPools[0],
-      };
-      employeeService.editPool(pool).then(() => {
-        updateTable();
+    if (selectedPools.length === 1) {
+      setEdit(true);
+      let testBarcodes = [];
+      selectedRows[0].string_agg.split(', ').forEach((test) => {
+        testBarcodes.push({ test_barcode: test });
       });
+      const pool = {
+        tests: testBarcodes,
+        pool_barcode: selectedRows[0].pool_barcode,
+      };
+      setEditedPool(pool);
+      // Moving data to text fields
+      setTests(pool.tests);
+      pool_barcode.setValue(pool.pool_barcode);
     }
+  };
+
+  const handleFinishEdit = () => {
+    const updatedPool = {
+      tests,
+      pool_barcode: pool_barcode.value,
+    };
+    employeeService
+      .editPool(editedPool.pool_barcode, updatedPool)
+      .then(() => {
+        updateTable();
+        pool_barcode.setValue('');
+        setTests([{ test_barcode: '' }]);
+        setEdit(false);
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
   };
 
   const handleDelete = () => {
     selectedPools.forEach((pool) => {
       employeeService
         .deletePool(pool)
-        .then((res) => {
+        .then(() => {
           updateTable();
         })
         .catch((err) => {
@@ -171,9 +199,15 @@ function PoolMapping() {
               </Button>
             </Space>
 
-            <Button type='primary' onClick={handleSubmit}>
-              Submit Pool
-            </Button>
+            {!edit ? (
+              <Button type='primary' onClick={handleSubmit}>
+                Submit Pool
+              </Button>
+            ) : (
+              <Button type='primary' onClick={handleFinishEdit}>
+                Finish Editing Pool
+              </Button>
+            )}
 
             <Table
               rowSelection={{

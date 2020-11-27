@@ -39,8 +39,8 @@ const addPool = (pool) => {
   return axios.post(`${baseUrl}/pool-mapping`, pool);
 };
 
-const editPool = (pool) => {
-  return axios.put(`${baseUrl}/pool-mapping/`, pool);
+const editPool = (original_pool_barcode, pool) => {
+  return axios.put(`${baseUrl}/pool-mapping/${original_pool_barcode}`, pool);
 };
 
 const deletePool = (pool_barcode) => {
@@ -55,8 +55,8 @@ const getWells = () => {
   return axios.get(`${baseUrl}/well-testing`);
 };
 
-const editWell = (well) => {
-  return axios.put(`${baseUrl}/well-testing/`, well);
+const editWell = (original_well_barcode, well) => {
+  return axios.put(`${baseUrl}/well-testing/${original_well_barcode}`, well);
 };
 
 const deleteWell = (well_barcode) => {

@@ -36,12 +36,6 @@ function LabLogin() {
         <Input placeholder='Email' {...email} />
         <Input.Password placeholder='Password' {...password} />
         <Space>
-          <Button
-            type='primary'
-            onClick={() => handleLogin('/test-collection')}
-          >
-            Login Collector
-          </Button>
           <Button type='primary' onClick={() => handleLogin('/home')}>
             Lab Login
           </Button>

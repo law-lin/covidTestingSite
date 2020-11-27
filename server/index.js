@@ -161,12 +161,15 @@ app.post('/test-collection', async (req, res) => {
 app.delete('/test-collection/:test_barcode', async (req, res) => {
   try {
     const { test_barcode } = req.params;
+    await pool.query('BEGIN');
     const deleteEmployee = await pool.query(
       'DELETE FROM employee_test WHERE test_barcode = $1',
       [test_barcode]
     );
+    await pool.query('COMMIT');
     res.json(deleteEmployee.rows[0]);
   } catch (err) {
+    await pool.query('ROLLBACK');
     console.log(err.message);
   }
 });
@@ -187,12 +190,12 @@ app.post('/pool-mapping', async (req, res) => {
         [pool_barcode]
       );
     }
-    await tests.forEach((test) => {
-      pool.query(
+    for (const test of tests) {
+      await pool.query(
         'INSERT INTO pool_map (test_barcode, pool_barcode) VALUES ($1, $2)',
         [test.test_barcode, pool_barcode]
       );
-    });
+    }
     res.json(checkPool.rows[0]);
   } catch (err) {
     console.log(err.message);
@@ -210,17 +213,45 @@ app.get('/pool-mapping', async (req, res) => {
   }
 });
 // Updates a pool
-app.put('/pool-mapping', async (req, res) => {
+app.put('/pool-mapping/:original_pool_barcode', async (req, res) => {
   try {
-    const { tests, pool_barcode } = req.params;
+    const { original_pool_barcode } = req.params;
+    const { tests, pool_barcode } = req.body;
 
-    await tests.forEach((test) => {
-      pool.query('UPDATE pool_map SET test_barcode=$1 WHERE pool_barcode=$2', [
-        test.test_barcode,
+    await pool.query('BEGIN');
+    // Delete original tests associated with original pool_barcode
+    const deletedPool = await pool.query(
+      'DELETE FROM pool_map WHERE pool_barcode=$1',
+      [original_pool_barcode]
+    );
+
+    // Edit pool_barcode if original doesn't match updated
+    if (original_pool_barcode !== pool_barcode) {
+      // Delete original pool
+      await pool.query('DELETE FROM pool WHERE pool_barcode=$1', [
+        original_pool_barcode,
+      ]);
+      // Add new pool
+      await pool.query('INSERT INTO pool (pool_barcode) VALUES ($1)', [
         pool_barcode,
       ]);
-    });
+      // Update pool_map
+      await pool.query(
+        'UPDATE pool_map SET pool_barcode=$1 WHERE pool_barcode=$2',
+        [pool_barcode, original_pool_barcode]
+      );
+    }
+    // Add in new tests
+    for (const test of tests) {
+      await pool.query(
+        'INSERT INTO pool_map (test_barcode, pool_barcode) VALUES ($1, $2)',
+        [test.test_barcode, pool_barcode]
+      );
+    }
+    await pool.query('COMMIT');
+    res.status(200).end();
   } catch (err) {
+    await pool.query('ROLLBACK');
     console.log(err.message);
   }
 });
@@ -228,6 +259,7 @@ app.put('/pool-mapping', async (req, res) => {
 // Deletes an employee test from the test collection
 app.delete('/pool-mapping/:pool_barcode', async (req, res) => {
   try {
+    await pool.query('BEGIN');
     const { pool_barcode } = req.params;
     const deletePoolMap = await pool.query(
       'DELETE FROM pool_map WHERE pool_barcode = $1',
@@ -237,8 +269,10 @@ app.delete('/pool-mapping/:pool_barcode', async (req, res) => {
       'DELETE FROM pool WHERE pool_barcode = $1',
       [pool_barcode]
     );
+    await pool.query('COMMIT');
     res.json(deletePool.rows[0]);
   } catch (err) {
+    await pool.query('ROLLBACK');
     console.log(err.message);
   }
 });
@@ -281,14 +315,16 @@ app.get('/well-testing', async (req, res) => {
 app.put('/well-testing', async (req, res) => {
   try {
     const { well_barcode, result } = req.params;
-
+    await pool.query('BEGIN');
     const updatedWell = await pool.query(
       'UPDATE well_testing SET result=$2 WHERE well_barcode=$1',
       [well_barcode, result]
     );
 
+    await pool.query('COMMIT');
     res.json(updatedWell.rows[0]);
   } catch (err) {
+    await pool.query('ROLLBACK');
     console.log(err.message);
   }
 });
@@ -296,6 +332,7 @@ app.put('/well-testing', async (req, res) => {
 app.delete('/well-testing/:well_barcode', async (req, res) => {
   try {
     const { well_barcode } = req.params;
+    await pool.query('BEGIN');
     const deleteWellTest = await pool.query(
       'DELETE FROM well_testing WHERE well_barcode = $1',
       [well_barcode]
@@ -304,8 +341,10 @@ app.delete('/well-testing/:well_barcode', async (req, res) => {
       'DELETE FROM well WHERE well_barcode = $1',
       [well_barcode]
     );
+    await pool.query('COMMIT');
     res.json(deleteWell.rows[0]);
   } catch (err) {
+    await pool.query('ROLLBACK');
     console.log(err.message);
   }
 });
